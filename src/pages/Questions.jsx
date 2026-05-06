@@ -1,0 +1,21 @@
+import { useMemo, useState } from 'react';
+import { HelpCircle, Plus, Trophy } from 'lucide-react';
+import { Card, Field, inputClass } from '../components/Forms';
+import { useAppData } from '../hooks/useAppData';
+
+export default function Questions() {
+  const { subjects, contents, questions, addQuestion, answerQuestion } = useAppData();
+  const [form, setForm] = useState({ subjectId: subjects[0]?.id || '', contentId: contents[0]?.id || '', tipo: 'múltipla escolha', enunciado: '', alternativas: 'A\nB\nC\nD', correta: '' });
+  const [feedback, setFeedback] = useState('');
+  const filteredContents = useMemo(() => contents.filter((content) => content.subjectId === form.subjectId), [contents, form.subjectId]);
+  const submit = (e) => { e.preventDefault(); addQuestion({ ...form, alternativas: form.tipo === 'cards' ? [] : form.alternativas.split('\n').filter(Boolean) }); setForm({ ...form, enunciado: '', correta: '' }); };
+  const respond = (question, resposta) => { const ok = resposta.trim().toLowerCase() === question.correta.trim().toLowerCase(); answerQuestion(question.id, { resposta, correta: ok, data: new Date().toISOString() }); setFeedback(ok ? 'Acertou! XP de estudo registrado.' : `Errou. Resposta correta: ${question.correta}`); };
+  return <div className="mx-auto grid max-w-7xl gap-6 xl:grid-cols-[420px_1fr]"><Card><h1 className="mb-5 flex items-center gap-2 text-2xl font-black"><Plus/> Cadastrar questão</h1><form onSubmit={submit} className="grid gap-4"><Field label="Matéria"><select className={inputClass} value={form.subjectId} onChange={(e) => setForm({ ...form, subjectId: e.target.value })}>{subjects.map((s) => <option key={s.id} value={s.id}>{s.nome}</option>)}</select></Field><Field label="Conteúdo"><select className={inputClass} value={form.contentId} onChange={(e) => setForm({ ...form, contentId: e.target.value })}>{filteredContents.map((c) => <option key={c.id} value={c.id}>{c.titulo}</option>)}</select></Field><Field label="Tipo"><select className={inputClass} value={form.tipo} onChange={(e) => setForm({ ...form, tipo: e.target.value })}>{['múltipla escolha','verdadeiro ou falso','cards'].map((x) => <option key={x}>{x}</option>)}</select></Field><Field label="Enunciado"><textarea required className={inputClass} value={form.enunciado} onChange={(e) => setForm({ ...form, enunciado: e.target.value })}/></Field>{form.tipo !== 'cards' && <Field label="Alternativas (uma por linha)"><textarea className={inputClass} value={form.alternativas} onChange={(e) => setForm({ ...form, alternativas: e.target.value })}/></Field>}<Field label="Resposta correta"><input required className={inputClass} value={form.correta} onChange={(e) => setForm({ ...form, correta: e.target.value })}/></Field><button className="rounded-2xl bg-teal-400 py-3 font-black text-slate-950">Salvar questão</button></form></Card>
+  <section className="space-y-4"><h1 className="text-3xl font-black">Banco de questões</h1>{feedback && <p className="rounded-2xl border border-teal-300/30 bg-teal-500/10 p-3 text-teal-100">{feedback}</p>}{questions.map((question) => <QuestionCard key={question.id} question={question} respond={respond} />)}</section></div>;
+}
+
+function QuestionCard({ question, respond }) {
+  const [answer, setAnswer] = useState('');
+  const hits = (question.respostas || []).filter((r) => r.correta).length;
+  return <Card><div className="flex items-start gap-3"><HelpCircle className="mt-1 text-teal-200"/><div className="flex-1"><p className="text-xs font-bold uppercase text-slate-500">{question.tipo}</p><h2 className="text-xl font-black">{question.enunciado}</h2><div className="mt-3 grid gap-2 sm:grid-cols-2">{(question.alternativas || []).map((alt) => <button key={alt} onClick={() => respond(question, alt)} className="rounded-2xl border border-white/10 p-3 text-left hover:bg-white/10">{alt}</button>)}</div><div className="mt-4 flex gap-2"><input className={inputClass} placeholder="Responder ou virar card" value={answer} onChange={(e) => setAnswer(e.target.value)}/><button onClick={() => { respond(question, answer); setAnswer(''); }} className="rounded-2xl bg-teal-500 px-4 font-black">Enviar</button></div><p className="mt-3 flex items-center gap-2 text-sm text-slate-400"><Trophy size={16}/>{hits}/{(question.respostas || []).length} acertos salvos</p></div></div></Card>;
+}
