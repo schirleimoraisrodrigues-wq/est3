@@ -1,0 +1,14 @@
+{
+  "name": "terminal-engenharia",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/dev-server.js",
+    "build": "node scripts/build.js",
+    "preview": "node scripts/dev-server.js dist",
+    "start": "node scripts/dev-server.js --host 0.0.0.0"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}
