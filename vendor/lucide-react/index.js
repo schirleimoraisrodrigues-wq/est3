@@ -1,0 +1,2 @@
+const Icon = () => null;
+export const AlertTriangle = Icon, BookOpen = Icon, CalendarDays = Icon, CalendarPlus = Icon, CheckCircle2 = Icon, ClipboardList = Icon, CreditCard = Icon, Edit3 = Icon, Flame = Icon, GraduationCap = Icon, HelpCircle = Icon, LayoutDashboard = Icon, ListChecks = Icon, LogOut = Icon, Mail = Icon, Menu = Icon, Plus = Icon, Sun = Icon, Target = Icon, Trash2 = Icon, Trophy = Icon, User = Icon, UserRound = Icon, Users = Icon, X = Icon, Zap = Icon;
