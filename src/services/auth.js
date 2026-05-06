@@ -1,8 +1,20 @@
 const AUTH_KEY = 'terminal-engenharia-auth';
 const USERS_KEY = 'terminal-engenharia-users';
 
+function safeParse(value, fallback) {
+  try {
+    return value ? JSON.parse(value) : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function makeId() {
+  return crypto.randomUUID ? crypto.randomUUID() : `user-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
 function users() {
-  return JSON.parse(localStorage.getItem(USERS_KEY) || '[]');
+  return safeParse(localStorage.getItem(USERS_KEY), []);
 }
 
 function setUsers(nextUsers) {
@@ -10,13 +22,13 @@ function setUsers(nextUsers) {
 }
 
 export function getCurrentUser() {
-  return JSON.parse(localStorage.getItem(AUTH_KEY) || 'null');
+  return safeParse(localStorage.getItem(AUTH_KEY), null);
 }
 
 export function register({ nome, email, senha }) {
   const allUsers = users();
   if (allUsers.some((user) => user.email === email)) throw new Error('E-mail já cadastrado.');
-  const user = { id: crypto.randomUUID(), nome, email, senha, studyStreak: 7 };
+  const user = { id: makeId(), nome, email, senha, studyStreak: 7 };
   setUsers([...allUsers, user]);
   const publicUser = { id: user.id, nome: user.nome, email: user.email, studyStreak: user.studyStreak };
   localStorage.setItem(AUTH_KEY, JSON.stringify(publicUser));

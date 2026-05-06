@@ -1,11 +1,18 @@
-import { seedContents, seedQuestions, seedSubjects, seedTasks } from '../data/seedData';
+import { seedContents, seedQuestions, seedSubjects, seedTasks } from '../data/seedData.js';
 
 const KEY = 'terminal-engenharia-state';
+const initialState = { subjects: seedSubjects, contents: seedContents, tasks: seedTasks, questions: seedQuestions };
+
+function safeParse(value, fallback) {
+  try {
+    return value ? JSON.parse(value) : fallback;
+  } catch {
+    return fallback;
+  }
+}
 
 export function loadState() {
-  const saved = localStorage.getItem(KEY);
-  if (saved) return JSON.parse(saved);
-  return { subjects: seedSubjects, contents: seedContents, tasks: seedTasks, questions: seedQuestions };
+  return safeParse(localStorage.getItem(KEY), initialState);
 }
 
 export function saveState(state) {
